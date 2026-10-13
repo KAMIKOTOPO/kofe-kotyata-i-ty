@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Кофе, котята и ты ☕</title>
+<style>
+:root{--cream:#fff4e9;--pink:#d75f7c;--rose:#a93d5d;--ink:#382a30;--muted:#806c70;--glass:rgba(255,248,241,.93)}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--ink);font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;background:#2b2024;display:grid;place-items:center;padding:16px;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;background:linear-gradient(130deg,rgba(40,25,28,.22),rgba(78,37,47,.4)),radial-gradient(ellipse at 15% 15%,#f8bd91 0,transparent 34%),radial-gradient(ellipse at 90% 75%,#bd6472 0,transparent 34%),linear-gradient(135deg,#493039,#9c655a 48%,#39282f);z-index:-2}
+body:after{content:"";position:fixed;inset:0;opacity:.22;z-index:-1;background-image:radial-gradient(#ffe2bf 1px,transparent 1px);background-size:34px 34px}
+.game{width:min(760px,100%);min-height:620px;border-radius:28px;overflow:hidden;box-shadow:0 24px 80px #160d11a8;background:var(--cream);display:flex;flex-direction:column}
+.hero{height:250px;position:relative;display:grid;place-items:center;text-align:center;overflow:hidden;background:linear-gradient(180deg,#49303933,#3b222f88),radial-gradient(ellipse at 50% 90%,#e8a16f 0,transparent 40%),linear-gradient(135deg,#61434a,#b87c68 55%,#48323a);color:#fff7ef}
+.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 0 8%,#ffe2bb55 8.5% 9%,transparent 9.5% 90%,#ffe2bb55 90.5% 91%,transparent 91.5%),linear-gradient(0deg,#40252caa,transparent 70%)}
+.window{position:absolute;top:0;left:7%;right:7%;height:75%;border:7px solid #f6d8b4aa;border-top:0;border-radius:0 0 12px 12px;opacity:.75}
+.lights{position:absolute;top:15px;left:0;right:0;font-size:18px;letter-spacing:22px;opacity:.8}
+.scene-art{position:relative;font-size:86px;line-height:1.2;filter:drop-shadow(0 8px 5px #39202b55);margin-top:22px}
+.hero h1{position:absolute;bottom:18px;margin:0;font-family:Georgia,serif;font-size:clamp(25px,5vw,38px);text-shadow:0 2px 10px #3b202a}
+.content{padding:24px clamp(18px,5vw,38px) 28px;flex:1;display:flex;flex-direction:column}
+.topline{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px;margin-bottom:14px;gap:12px}
+.progress{height:6px;background:#eedbd3;border-radius:9px;overflow:hidden;flex:1;max-width:190px}.bar{height:100%;width:0;background:linear-gradient(90deg,#e9a0a8,var(--pink));transition:width .3s}
+.speaker{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:var(--rose);font-weight:800;margin-bottom:8px}
+h2{font-family:Georgia,serif;font-size:clamp(23px,4vw,31px);line-height:1.18;margin:0 0 12px}
+p{line-height:1.65;margin:0 0 18px;font-size:16px}
+.choices{display:grid;gap:10px;margin-top:auto}
+button{font:inherit;cursor:pointer;border:0;transition:transform .15s,filter .15s}
+.choice{padding:14px 16px;border-radius:15px;text-align:left;background:#fffdf9;border:1px solid #efd8d0;color:var(--ink);box-shadow:0 3px 0 #ead1c8;font-size:15px}
+.choice:hover{transform:translateY(-2px);filter:brightness(.99)}.choice.primary{background:linear-gradient(135deg,#df7990,#c94f72);color:white;border-color:transparent;box-shadow:0 4px 0 #a83f5e}
+.choice .emoji{font-size:19px;margin-right:9px}
+.note{font-size:12px;color:#927c80;margin-top:16px;text-align:center}
+.ending{text-align:center}.ending .big{font-size:65px;margin:4px 0 15px}
+.tag{display:inline-block;background:#f8e3df;color:#9e4b62;border-radius:30px;padding:7px 12px;font-size:12px;margin-bottom:12px}
+@media(max-width:520px){body{padding:0}.game{min-height:100vh;border-radius:0}.hero{height:225px}.content{padding:20px 18px 24px}.scene-art{font-size:75px}.choice{padding:13px 14px}}
+</style>
+</head>
+<body>
+<main class="game">
+  <header class="hero" id="hero">
+    <div class="window"></div><div class="lights">✦　☼　✦　☾　✦</div>
+    <div class="scene-art" id="art">🐈 ☕ 🐈</div>
+    <h1 id="heroTitle">Кофе, котята и ты</h1>
+  </header>
+  <section class="content">
+    <div class="topline"><span id="chapter">Маленькая история</span><div class="progress"><div class="bar" id="bar"></div></div><span id="step">1 / 6</span></div>
+    <div id="screen"></div>
+    <div class="note" id="footnote">☕ Здесь можно быть собой. Никаких неправильных ответов.</div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./config.js"></script>
+<script>
+const scenes = [
+ {art:"🐈‍⬛　☕　🐈", title:"Кофе, котята и ты", chapter:"Глава 1 · Случайная встреча", speaker:"История начинается", text:"Представь: уютное кафе, за окном тихо идёт дождь, пахнет корицей и свежим кофе. Ты заходишь внутрь — а там котята, которые будто специально ждали именно тебя.", choices:[["☕","Заказать что-нибудь вкусное и осмотреться","warm"],["🐾","Сначала познакомиться с котятами","cats"],["💌","Написать человеку, с которым хочется разделить этот момент","romantic"]]},
+ {art:"🐱　🧶　🐈", title:"Котёнок выбирает тебя", chapter:"Глава 2 · Пушистый знакомый", speaker:"Бариста", text:"К тебе подходит крошечный котёнок, ставит лапки на колено и смотрит так, будто вы знакомы сто лет. Бариста улыбается: «Кажется, он тебя одобрил!»", choices:[["🐾","Аккуратно погладить его за ушком","kind"],["📸","Сделать милое фото на память","fun"],["🥛","Спросить, можно ли угостить его чем-то безопасным для котят","care"]]},
+ {art:"☕　🍰　🐈", title:"Что будем заказывать?", chapter:"Глава 3 · Вкус момента", speaker:"Бариста", text:"На столе меню: какао с маршмеллоу, нежный латте и десерт в форме кошачьей лапки. Рядом уже устроился котёнок — кажется, он тоже ждёт твоего выбора.", choices:[["🤎","Латте и десерт на двоих","coffee"],["🍫","Какао с маршмеллоу — уютнее некуда","cozy"],["🍓","Что-нибудь необычное, чтобы было что обсудить","curious"]]},
+ {art:"🌆　🐈　💗", title:"Разговор по душам", chapter:"Глава 4 · Самое уютное", speaker:"Небольшой вопрос", text:"За окном загораются огни. Иногда лучший вечер — это не идеальный план, а человек, рядом с которым легко смеяться и можно не притворяться кем-то другим.", choices:[["💬","Мне важны искренность и возможность быть собой","honest"],["😂","Люблю дурачиться и придумывать маленькие приключения","funny"],["🫶","Мне важно заботиться друг о друге и говорить о чувствах","care"]]},
+ {art:"🐾　💌　☕", title:"Письмо на салфетке", chapter:"Глава 5 · Маленькая смелость", speaker:"Ты находишь записку", text:"Под чашкой лежит салфетка с нарисованным котиком и словами: «Иногда хочется спросить что-то важное, но страшно испортить уютный момент». Рядом оставлено пустое место для твоего ответа.", choices:[["💗","Лучше честно спросить, даже если немного волнуешься","brave"],["🌷","Дать понять о своих чувствах бережно, без давления","gentle"],["🐈","Начать с улыбки и посмотреть, как пойдёт разговор","slow"]]},
+ {art:"🌙　☕　🐈‍⬛", title:"Самый важный вопрос", chapter:"Финал · Решение за тобой", speaker:"Немного волнуясь, ты говоришь", text:"«Мне очень нравится проводить с тобой время. Ты мне небезразлична, и я хотел бы попробовать быть не просто друзьями. Но мне важно, чтобы ты ответила честно и так, как чувствуешь. Ты хотела бы встречаться со мной?»\n\nТвой ответ сохранится, и автор истории сможет увидеть его в закрытой панели.", choices:[["💖","Да, я тоже хочу попробовать!","yes"],["🌷","Мне нужно подумать, я пока не уверена","maybe"],["🤍","Ты мне дорог, но я не хочу отношений","no"]]}
+];
+let index=0, answers=[];
+const supabaseClient = window.supabase && window.GAME_CONFIG && window.GAME_CONFIG.supabaseUrl && window.GAME_CONFIG.supabaseAnonKey && !window.GAME_CONFIG.supabaseUrl.includes("YOUR-") ? window.supabase.createClient(window.GAME_CONFIG.supabaseUrl, window.GAME_CONFIG.supabaseAnonKey) : null;
+const screen=document.getElementById("screen");
+function render(){
+ const s=scenes[index];
+ document.getElementById("art").textContent=s.art;
+ document.getElementById("heroTitle").textContent=index===0?"Кофе, котята и ты":s.title;
+ document.getElementById("chapter").textContent=s.chapter;
+ document.getElementById("step").textContent=(index+1)+" / "+scenes.length;
+ document.getElementById("bar").style.width=((index+1)/scenes.length*100)+"%";
+ document.getElementById("footnote").textContent=index===5?"🤍 Какой бы ни был ответ, честность — это тоже забота.":"☕ Здесь можно быть собой. Никаких неправильных ответов.";
+ screen.innerHTML=`<div class="speaker">${s.speaker}</div><h2>${s.title}</h2><p>${s.text}</p><div class="choices">${s.choices.map((c,i)=>`<button class="choice ${i===0?'primary':''}" data-i="${i}"><span class="emoji">${c[0]}</span>${c[1]}</button>`).join("")}</div>`;
+ screen.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>choose(Number(b.dataset.i))));
+}
+function choose(i){
+ const s=scenes[index], choice=s.choices[i]; answers.push({title:s.title,answer:choice[1],key:choice[2]});
+ if(index<scenes.length-1){index++;render()}else ending(choice[2]);
+}
+async function saveAnswer(result){
+ if (!supabaseClient) return {ok:false, message:"Сохранение ещё не настроено. Автору нужно заполнить config.js."};
+ try {
+   const { error } = await supabaseClient.from("game_answers").insert({ final_answer: result, answers: answers });
+   if (error) throw error;
+   return {ok:true, message:"Твой ответ сохранён. Спасибо за честность 💗"};
+ } catch (e) {
+   console.error("Не удалось сохранить ответ:", e);
+   return {ok:false, message:"Не получилось сохранить ответ. Попробуй ещё раз или сообщи автору."};
+ }
+}
+function ending(result){
+ document.getElementById("art").textContent=result==="yes"?"💗　🐈　☕":result==="maybe"?"🌷　🐈　🤍":"🤍　🐈　🌙";
+ document.getElementById("heroTitle").textContent="Спасибо за честность";
+ document.getElementById("chapter").textContent="Концовка истории";
+ document.getElementById("step").textContent="♥";
+ document.getElementById("bar").style.width="100%";
+ document.getElementById("footnote").textContent="История закончилась, но хорошее общение может продолжаться.";
+ let title, text, emoji;
+ if(result==="yes"){title="Кажется, начинается что-то прекрасное!";text="Она выбрала попробовать — спокойно, искренне и без необходимости быть идеальными. Пусть вашим первым маленьким приключением станет кофе и котики.";emoji="💞"}
+ else if(result==="maybe"){title="У чувств свой темп";text="Она пока не уверена, и это нормально. Дай ей время без уговоров и давления. Ты заслуживаешь ясности, а она — возможности разобраться в своих чувствах.";emoji="🌷"}
+ else {title="Честный ответ — тоже ответ";text="Это может быть грустно, если ты надеялся на другое. Но ты проявил смелость и уважение. Её ответ не определяет твою ценность, и тебе не нужно убеждать её передумать.";emoji="🤍"}
+ screen.innerHTML=`<div class="ending"><div class="tag">Твоя концовка</div><p id="saveStatus" aria-live="polite">Сохраняем твой ответ…</p><div class="big">${emoji}</div><h2>${title}</h2><p>${text}</p><p><strong>Твои моменты в этой истории</strong><br>${answers.slice(0,5).map(a=>"🐾 "+a.answer).join("<br>")}</p><button class="choice primary" id="restart" style="width:100%;text-align:center;margin-top:8px">↻ Пройти историю ещё раз</button><p style="font-size:12px;color:#927c80;margin-top:15px">Иногда всё начинается с маленького кофе и одного смелого вопроса. ☕</p></div>`;
+ document.getElementById("restart").addEventListener("click",()=>{index=0;answers=[];render()});
+ const restartButton = document.getElementById("restart");
+ restartButton.disabled = true;
+ restartButton.style.opacity = ".6";
+ saveAnswer(result).then(state => {
+   const status = document.getElementById("saveStatus");
+   if (status) { status.textContent = state.message; status.style.color = state.ok ? "#36734a" : "#a93d5d"; }
+   restartButton.disabled = false;
+   restartButton.style.opacity = "1";
+ });
+}
+render();
+</script>
+</body>
+</html>
